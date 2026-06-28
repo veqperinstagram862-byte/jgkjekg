@@ -28,8 +28,8 @@ const features = [
 ]
 
 const stats = [
-  { value: "500+", label: "Vetura të Shitura" },
-  { value: "15+", label: "Vite Eksperiencë" },
+  { value: "5000+", label: "Vetura të Shitura" },
+  { value: "10+", label: "Vite Eksperiencë" },
   { value: "1000+", label: "Klientë të Kënaqur" },
   { value: "24/7", label: "Mbështetje" },
 ]
