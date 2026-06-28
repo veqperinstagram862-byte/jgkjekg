@@ -84,15 +84,10 @@ function ImageGallery({ images, carName }: { images: string[]; carName: string }
 function FinancingCalculator({ price }: { price: number }) {
   const [downPayment, setDownPayment] = useState(Math.round(price * 0.2))
   const [months, setMonths] = useState(60)
-  const [interestRate, setInterestRate] = useState(5.5)
 
   const loanAmount = price - downPayment
-  const monthlyInterestRate = interestRate / 100 / 12
-  const monthlyPayment = loanAmount > 0 && months > 0
-    ? (loanAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, months)) / (Math.pow(1 + monthlyInterestRate, months) - 1)
-    : 0
+  const monthlyPayment = loanAmount > 0 && months > 0 ? loanAmount / months : 0
   const totalPayment = monthlyPayment * months
-  const totalInterest = totalPayment - loanAmount
 
   return (
     <div className="glass rounded-2xl p-6 space-y-6">
@@ -140,21 +135,6 @@ function FinancingCalculator({ price }: { price: number }) {
             ))}
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Interest Rate: {interestRate}%
-          </label>
-          <input
-            type="range"
-            min={1}
-            max={15}
-            step={0.1}
-            value={interestRate}
-            onChange={(e) => setInterestRate(Number(e.target.value))}
-            className="w-full accent-primary"
-          />
-        </div>
       </div>
 
       <div className="pt-6 border-t border-border space-y-3">
@@ -165,10 +145,6 @@ function FinancingCalculator({ price }: { price: number }) {
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">Monthly Payment</span>
           <span className="text-2xl font-bold text-primary">{formatPrice(monthlyPayment)}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-muted-foreground">Total Interest</span>
-          <span className="font-semibold text-foreground">{formatPrice(totalInterest)}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">Total Payment</span>
