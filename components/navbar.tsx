@@ -18,12 +18,12 @@ export function Navbar() {
   }, [])
 
   const navItems = [
-    { label: "Ballina", href: "/#hero" },
-    { label: "Vetura", href: "/#showroom" },
-    { label: "Të Gjitha Veturat", href: "/all-cars" },
-    { label: "E Re", href: "/#new-arrivals" },
-    { label: "Rreth Nesh", href: "/#about" },
-    { label: "Kontakt", href: "/#contact" },
+    { label: "Home", href: "/#hero" },
+    { label: "Showroom", href: "/#showroom" },
+    { label: "All Cars", href: "/all-cars" },
+    { label: "New Arrivals", href: "/#new-arrivals" },
+    { label: "About", href: "/#about" },
+    { label: "Contact", href: "/#contact" },
   ]
 
   return (

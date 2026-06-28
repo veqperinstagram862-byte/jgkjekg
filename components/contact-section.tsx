@@ -15,30 +15,34 @@ export function ContactSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log("Form submitted:", formState)
+    const whatsappNumber = "38344123456"
+    const text = `Hello, my name is ${formState.name}. ${formState.message}`
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`
+    window.open(whatsappUrl, '_blank')
   }
 
   const contactInfo = [
     {
       icon: MapPin,
-      label: "Adresa",
-      value: "Rruga Adem Jashari, Prizren, Kosovë",
+      label: "Address",
+      value: "Rruga Adem Jashari, Prizren, Kosovo",
     },
     {
       icon: Phone,
-      label: "Telefon",
+      label: "Phone",
       value: "+383 44 123 456",
+      href: "tel:+38344123456",
     },
     {
       icon: Mail,
       label: "Email",
       value: "info@bellaqaprizren.com",
+      href: "mailto:info@bellaqaprizren.com",
     },
     {
       icon: Clock,
-      label: "Orari",
-      value: "E Hënë - E Shtunë: 09:00 - 19:00",
+      label: "Working Hours",
+      value: "Mon - Sat: 09:00 - 19:00",
     },
   ]
 
@@ -50,7 +54,7 @@ export function ContactSection() {
     >
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
-      
+
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
@@ -69,13 +73,13 @@ export function ContactSection() {
             className="inline-flex items-center gap-2 px-4 py-1 rounded-full glass text-primary text-sm font-medium mb-4"
           >
             <MessageCircle className="w-4 h-4" />
-            Na Kontaktoni
+            Visit Our Showroom
           </motion.span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance">
-            Jemi Këtu për <span className="text-primary">Ju</span>
+            Get in <span className="text-primary">Touch</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
-            Keni pyetje? Na kontaktoni dhe do t&apos;ju përgjigjemi sa më shpejt.
+            Visit our showroom in Prizren or contact us directly. We are here to help you find your perfect vehicle.
           </p>
         </motion.div>
 
@@ -86,7 +90,7 @@ export function ContactSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="space-y-6">
+            <div className="space-y-4">
               {contactInfo.map((item, index) => (
                 <motion.div
                   key={item.label}
@@ -101,21 +105,45 @@ export function ContactSection() {
                   </div>
                   <div>
                     <p className="text-muted-foreground text-sm">{item.label}</p>
-                    <p className="text-foreground font-medium">{item.value}</p>
+                    {item.href ? (
+                      <a href={item.href} className="text-foreground font-medium hover:text-primary transition-colors">
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="text-foreground font-medium">{item.value}</p>
+                    )}
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            {/* Map placeholder */}
+            {/* WhatsApp Quick Contact */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.5 }}
+              className="mt-6"
+            >
+              <a
+                href="https://wa.me/38344123456?text=Hello%2C%20I%20am%20interested%20in%20your%20vehicles."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 w-full p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-500 font-semibold hover:bg-green-500 hover:text-white transition-all"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Chat with us on WhatsApp
+              </a>
+            </motion.div>
+
+            {/* Google Maps */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.6 }}
-              className="mt-8 aspect-video rounded-2xl glass overflow-hidden"
+              className="mt-6 aspect-video rounded-2xl glass overflow-hidden"
             >
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d47618.07821562!2d20.696!3d42.213!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1353063b9d4b1e1b%3A0x8ad80d7a1d437d!2sPrizren!5e0!3m2!1sen!2s!4v1"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4753.890293227611!2d20.7405!3d42.2139!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13539a6b8c5c5e5f%3A0x7f8e1c0d5a0b0c0d!2sRruga%20Adem%20Jashari%2C%20Prizren!5e0!3m2!1sen!2s!4v1703123456789!5m2!1sen!2s"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -134,12 +162,12 @@ export function ContactSection() {
             transition={{ duration: 0.8, delay: 0.3 }}
           >
             <form onSubmit={handleSubmit} className="glass rounded-2xl p-6 sm:p-8">
-              <h3 className="text-xl font-semibold text-foreground mb-6">Dërgoni Mesazh</h3>
-              
+              <h3 className="text-xl font-semibold text-foreground mb-6">Send us a Message</h3>
+
               <div className="space-y-5">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-2">
-                    Emri i Plotë
+                    Your Name
                   </label>
                   <motion.input
                     whileFocus={{ scale: 1.01 }}
@@ -148,14 +176,14 @@ export function ContactSection() {
                     value={formState.name}
                     onChange={(e) => setFormState({ ...formState, name: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-1 focus:ring-primary text-foreground placeholder-muted-foreground transition-all duration-300 outline-none"
-                    placeholder="Emri juaj"
+                    placeholder="John Doe"
                     required
                   />
                 </div>
 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-muted-foreground mb-2">
-                    Numri i Telefonit
+                    Phone Number
                   </label>
                   <motion.input
                     whileFocus={{ scale: 1.01 }}
@@ -171,7 +199,7 @@ export function ContactSection() {
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-muted-foreground mb-2">
-                    Mesazhi
+                    Your Message
                   </label>
                   <motion.textarea
                     whileFocus={{ scale: 1.01 }}
@@ -180,7 +208,7 @@ export function ContactSection() {
                     onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                     rows={5}
                     className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-1 focus:ring-primary text-foreground placeholder-muted-foreground transition-all duration-300 outline-none resize-none"
-                    placeholder="Shkruani mesazhin tuaj këtu..."
+                    placeholder="I am interested in..."
                     required
                   />
                 </div>
@@ -192,7 +220,7 @@ export function ContactSection() {
                   className="w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold glow-primary transition-all duration-300 hover:shadow-[0_0_40px_oklch(0.75_0.15_45/0.5)]"
                 >
                   <Send className="w-5 h-5" />
-                  <span>Dërgo Mesazhin</span>
+                  <span>Send via WhatsApp</span>
                 </motion.button>
               </div>
             </form>

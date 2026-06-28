@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Providers } from '@/components/providers'
 import './globals.css'
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   variable: '--font-inter'
 })
 
 export const metadata: Metadata = {
-  title: 'Autosalloni Bellaqa Prizren | Vetura Premium',
-  description: 'Eksperiencë premium në çdo veturë. Autosalloni Bellaqa Prizren - Shpejtësi, stil dhe besim në një vend.',
+  title: 'Autosalloni Bellaqa Prizren | Premium Cars',
+  description: 'Premium experience in every car. Autosalloni Bellaqa Prizren - Speed, style and trust in one place.',
   generator: 'v0.app',
-  keywords: ['autosallon', 'vetura', 'Prizren', 'Bellaqa', 'makinë', 'auto', 'Kosovo'],
+  keywords: ['car dealership', 'cars', 'Prizren', 'Bellaqa', 'auto', 'Kosovo', 'premium vehicles'],
   icons: {
     icon: [
       {
@@ -44,9 +45,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="sq" className="dark">
+    <html lang="en" className="dark">
       <body className={`${inter.variable} font-sans antialiased overflow-x-hidden`}>
-        {children}
+        <Providers>{children}</Providers>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

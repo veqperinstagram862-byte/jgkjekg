@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion"
 import Image from "next/image"
-import { ArrowRight, Fuel, Gauge, Calendar, Settings } from "lucide-react"
-import { DEFAULT_CARS, readSavedCars, type Car } from "@/lib/cars"
+import Link from "next/link"
+import { ArrowRight, Fuel, Gauge, Calendar, Settings, MessageCircle } from "lucide-react"
+import { getFeaturedCars, formatPrice, formatMileage, getWhatsAppLink, getStatusColor, getStatusLabel, type Car } from "@/lib/cars"
+import { useCompare } from "@/lib/compare-context"
 
 function TiltCard({ car }: { car: Car }) {
   const cardRef = useRef<HTMLDivElement>(null)
-  
+  const { addToCompare, isInCompare } = useCompare()
+
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
@@ -36,6 +39,8 @@ function TiltCard({ car }: { car: Car }) {
     y.set(0)
   }
 
+  const isSold = car.status === 'sold'
+
   return (
     <motion.div
       ref={cardRef}
@@ -46,29 +51,33 @@ function TiltCard({ car }: { car: Car }) {
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className="relative group cursor-pointer"
+      className="relative group"
     >
-      <div className="glass rounded-2xl overflow-hidden transition-all duration-500 group-hover:shadow-[0_0_50px_oklch(0.75_0.15_45/0.2)]">
+      <div className={`glass rounded-2xl overflow-hidden transition-all duration-500 group-hover:shadow-[0_0_50px_oklch(0.75_0.15_45/0.2)] ${isSold ? 'opacity-70' : ''}`}>
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-            src={car.image}
+            src={car.images[0] || '/images/placeholder.jpg'}
             alt={car.name}
             fill
-            unoptimized={car.image.startsWith("data:")}
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            className={`object-cover transition-transform duration-700 group-hover:scale-110 ${isSold ? 'grayscale-[30%]' : ''}`}
           />
           <motion.div
             className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{ transform: "translateZ(50px)" }}
           />
+          <span className={`absolute left-4 top-4 z-10 px-3 py-1.5 rounded-full text-xs font-bold text-white ${getStatusColor(car.status)}`}>
+            {getStatusLabel(car.status)}
+          </span>
           <div className="absolute top-4 right-4 px-4 py-2 glass rounded-full">
-            <span className="text-primary font-bold">{car.price}</span>
+            <span className="text-primary font-bold">{formatPrice(car.price)}</span>
           </div>
         </div>
 
         <div className="p-6" style={{ transform: "translateZ(30px)" }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-foreground">{car.name}</h3>
+            <Link href={`/car/${car.id}`} className="hover:text-primary transition-colors">
+              <h3 className="text-xl font-bold text-foreground">{car.name}</h3>
+            </Link>
             <span className="text-muted-foreground flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               {car.year}
@@ -78,25 +87,37 @@ function TiltCard({ car }: { car: Car }) {
           <div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Fuel className="w-4 h-4 text-primary" />
-              {car.specs.fuel}
+              {car.fuel_type}
             </span>
             <span className="flex items-center gap-1">
               <Gauge className="w-4 h-4 text-primary" />
-              {car.specs.power}
+              {formatMileage(car.mileage)}
             </span>
             <span className="flex items-center gap-1">
               <Settings className="w-4 h-4 text-primary" />
-              {car.specs.transmission}
+              {car.transmission}
             </span>
           </div>
 
-          <motion.button
-            whileHover={{ x: 5 }}
-            className="flex items-center gap-2 text-primary font-medium group/btn"
-          >
-            <span>Eksploro</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-          </motion.button>
+          <div className="flex gap-2">
+            <Link
+              href={`/car/${car.id}`}
+              className="flex-1 flex items-center justify-center gap-2 text-primary font-medium px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-all"
+            >
+              <span>View Details</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            {!isSold && (
+              <a
+                href={getWhatsAppLink(car.name)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-all"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -106,10 +127,20 @@ function TiltCard({ car }: { car: Car }) {
 export function CarShowroom() {
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
-  const [cars, setCars] = useState<Car[]>(DEFAULT_CARS)
+  const [cars, setCars] = useState<Car[]>([])
 
   useEffect(() => {
-    setCars([...DEFAULT_CARS, ...readSavedCars()])
+    async function fetchCars() {
+      const featuredCars = await getFeaturedCars()
+      if (featuredCars.length === 0) {
+        const { getCars } = await import('@/lib/cars')
+        const allCars = await getCars()
+        setCars(allCars.slice(0, 6))
+      } else {
+        setCars(featuredCars)
+      }
+    }
+    fetchCars()
   }, [])
 
   return (
@@ -142,28 +173,34 @@ export function CarShowroom() {
             transition={{ delay: 0.2 }}
             className="inline-block px-4 py-1 rounded-full glass text-primary text-sm font-medium mb-4"
           >
-            Koleksioni Ynë
+            Our Collection
           </motion.span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance">
-            Zbuloni Veturat <span className="text-primary">Premium</span>
+            Discover <span className="text-primary">Premium</span> Vehicles
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty">
-            Çdo veturë në koleksionin tonë është zgjedhur me kujdes për të ofruar eksperiencën më të mirë.
+            Every vehicle in our collection is carefully selected to offer the best experience.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
-          {cars.map((car, index) => (
-            <motion.div
-              key={car.id}
-              initial={{ opacity: 0, y: 80 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: index * 0.12 }}
-            >
-              <TiltCard car={car} />
-            </motion.div>
-          ))}
-        </div>
+        {cars.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading vehicles...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
+            {cars.slice(0, 6).map((car, index) => (
+              <motion.div
+                key={car.id}
+                initial={{ opacity: 0, y: 80 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: index * 0.12 }}
+              >
+                <TiltCard car={car} />
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -177,7 +214,7 @@ export function CarShowroom() {
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 rounded-full glass text-foreground font-semibold border border-border hover:border-primary/50 transition-all duration-300 inline-flex items-center gap-2"
           >
-            <span>Shiko Të Gjitha Veturat</span>
+            <span>View All Cars</span>
             <ArrowRight className="w-5 h-5" />
           </motion.a>
         </motion.div>
